@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thyroid Health Predictor</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #3498db;
+      --secondary: #2ecc71;
+      --danger: #e74c3c;
+      --dark: #34495e;
+      --light: #ecf0f1;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      animation: gradientBG 15s ease infinite;
+      background-size: 400% 400%;
+    }
+    
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      animation: fadeInUp 0.8s ease-out;
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    header {
+      background: linear-gradient(to right, var(--primary), #2980b9);
+      color: white;
+      padding: 20px 30px;
+      text-align: center;
+      position: relative;
+    }
+    
+    header h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+    
+    header p {
+      opacity: 0.8;
+      font-size: 16px;
+    }
+    
+    .medical-icon {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 24px;
+    }
+    
+    .content {
+      padding: 30px;
+    }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--dark);
+    }
+    
+    .input-group {
+      position: relative;
+    }
+    
+    .input-group i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #7f8c8d;
+    }
+    
+    input, select {
+      width: 100%;
+      padding: 12px 12px 12px 40px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: var(--transition);
+    }
+    
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    }
+    
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      margin-left: 8px;
+      cursor: help;
+    }
+    
+    .tooltip i {
+      color: var(--primary);
+    }
+    
+    .tooltip-text {
+      visibility: hidden;
+      width: 200px;
+      background-color: var(--dark);
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 8px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 14px;
+    }
+    
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+    
+    .btn {
+      background: var(--secondary);
+      color: white;
+      border: none;
+      padding: 14px 25px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      margin-top: 15px;
+      width: 100%;
+    }
+    
+    .btn i {
+      margin-right: 8px;
+    }
+    
+    .btn:hover {
+      background: #27ae60;
+      box-shadow: var(--shadow);
+      transform: translateY(-2px);
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+    }
+    
+    .result-container {
+      margin-top: 30px;
+      padding: 20px;
+      border-radius: 8px;
+      background-color: var(--light);
+      display: none;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+    }
+    
+    .result-container.show {
+      display: block;
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    .result-heading {
+      font-size: 20px;
+      margin-bottom: 15px;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+    }
+    
+    .result-heading i {
+      margin-right: 10px;
+      font-size: 24px;
+    }
+    
+    .result-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+    
+    .result-info {
+      flex: 1;
+    }
+    
+    .result-status {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    
+    .result-description {
+      color: #7f8c8d;
+    }
+    
+    .result-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-left: 20px;
+    }
+    
+    .result-icon.positive {
+      background-color: rgba(231, 76, 60, 0.1);
+      color: var(--danger);
+    }
+    
+    .result-icon.negative {
+      background-color: rgba(46, 204, 113, 0.1);
+      color: var(--secondary);
+    }
+    
+    .form-instructions {
+      background-color: rgba(52, 152, 219, 0.1);
+      border-left: 4px solid var(--primary);
+      padding: 15px;
+      margin-bottom: 25px;
+      border-radius: 0 8px 8px 0;
+    }
+    
+    .form-instructions p {
+      margin-bottom: 0;
+      color: #2c3e50;
+    }
+    
+    .required-field::after {
+      content: "*";
+      color: var(--danger);
+      margin-left: 4px;
+    }
+    
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+    
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-left-color: var(--primary);
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .binary-switch {
+      display: flex;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .binary-switch label {
+      flex: 1;
+      margin: 0;
+      text-align: center;
+      padding: 12px;
+      cursor: pointer;
+      transition: var(--transition);
+      background-color: white;
+      color: #7f8c8d;
+    }
+    
+    .binary-switch input[type="radio"] {
+      display: none;
+    }
+    
+    .binary-switch input[type="radio"]:checked + label {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .error-message {
+      color: var(--danger);
+      font-size: 14px;
+      margin-top: 5px;
+      display: none;
+    }
+    
+    .error-border {
+      border-color: var(--danger) !important;
+    }
+    
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .medical-icon {
+        display: none;
+      }
+    }
+    
+    .field-info {
+      font-size: 14px;
+      color: #7f8c8d;
+      margin-top: 4px;
+    }
+    
+    .field-highlight {
+      color: var(--primary);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <i class="fas fa-heartbeat medical-icon"></i>
+      <h1>Thyroid Health Predictor</h1>
+      <p>Enter your clinical data for hypothyroidism risk assessment</p>
+    </header>
+    
+    <div class="content">
+      <div class="form-instructions">
+        <p><i class="fas fa-info-circle"></i> Fill out the form below with your thyroid test results and health information. Fields marked with an asterisk (*) are required.</p>
+      </div>
+      
+      <form id="predictForm">
+        <div class="form-grid">
+          <!-- Demographics -->
+          <div class="form-group">
+            <label class="required-field">Age</label>
+            <div class="input-group">
+              <i class="fas fa-user"></i>
+              <input type="number" id="age" min="1" max="120" required>
+            </div>
+            <div class="error-message" id="age-error">Please enter a valid age (1-120)</div>
+          </div>
+          
+          <div class="form-group">
+            <label>Sex</label>
+            <div class="input-group">
+              <i class="fas fa-venus-mars"></i>
+              <select id="sex">
+                <option value="F">Female</option>
+                <option value="M">Male</option>
+              </select>
+            </div>
+          </div>
+          
+          <!-- Medical conditions -->
+          <div class="form-group">
+            <label>Currently on Thyroxine?</label>
+            <div class="binary-switch">
+              <input type="radio" id="on_thyroxine_f" name="on_thyroxine" value="f" checked>
+              <label for="on_thyroxine_f">No</label>
+              <input type="radio" id="on_thyroxine_t" name="on_thyroxine" value="t">
+              <label for="on_thyroxine_t">Yes</label>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Query on Thyroxine?</label>
+            <div class="binary-switch">
+              <input type="radio" id="query_on_thyroxine_f" name="query_on_thyroxine" value="f" checked>
+              <label for="query_on_thyroxine_f">No</label>
+              <input type="radio" id="query_on_thyroxine_t" name="query_on_thyroxine" value="t">
+              <label for="query_on_thyroxine_t">Yes</label>
+            </div>
+            <div class="field-info">Are you being evaluated for thyroxine therapy?</div>
+          </div>
+          
+          <div class="form-group">
+            <label>On Antithyroid Medication?</label>
+            <div class="binary-switch">
+              <input type="radio" id="on_antithyroid_medication_f" name="on_antithyroid_medication" value="f" checked>
+              <label for="on_antithyroid_medication_f">No</label>
+              <input type="radio" id="on_antithyroid_medication_t" name="on_antithyroid_medication" value="t">
+              <label for="on_antithyroid_medication_t">Yes</label>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Currently Sick?</label>
+            <div class="binary-switch">
+              <input type="radio" id="sick_f" name="sick" value="f" checked>
+              <label for="sick_f">No</label>
+              <input type="radio" id="sick_t" name="sick" value="t">
+              <label for="sick_t">Yes</label>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Pregnant?</label>
+            <div class="binary-switch">
+              <input type="radio" id="pregnant_f" name="pregnant" value="f" checked>
+              <label for="pregnant_f">No</label>
+              <input type="radio" id="pregnant_t" name="pregnant" value="t">
+              <label for="pregnant_t">Yes</label>
+            </div>
+          </div>
+          
+          <!-- Lab values -->
+          <div class="form-group">
+            <label class="required-field">TSH</label>
+            <div class="input-group">
+              <i class="fas fa-flask"></i>
+              <input type="number" id="TSH" step="0.01" required>
+            </div>
+            <div class="field-info">Thyroid Stimulating Hormone (mIU/L)</div>
+            <div class="error-message" id="TSH-error">Please enter a valid TSH value</div>
+          </div>
+          
+          <div class="form-group">
+            <label class="required-field">T3</label>
+            <div class="input-group">
+              <i class="fas fa-flask"></i>
+              <input type="number" id="T3" step="0.01" required>
+            </div>
+            <div class="field-info">Triiodothyronine (nmol/L)</div>
+            <div class="error-message" id="T3-error">Please enter a valid T3 value</div>
+          </div>
+          
+          <div class="form-group">
+            <label class="required-field">TT4</label>
+            <div class="input-group">
+              <i class="fas fa-flask"></i>
+              <input type="number" id="TT4" required>
+            </div>
+            <div class="field-info">Total Thyroxine (nmol/L)</div>
+            <div class="error-message" id="TT4-error">Please enter a valid TT4 value</div>
+          </div>
+          
+          <div class="form-group">
+            <label class="required-field">T4U</label>
+            <div class="input-group">
+              <i class="fas fa-flask"></i>
+              <input type="number" id="T4U" step="0.01" required>
+            </div>
+            <div class="field-info">T4 Uptake</div>
+            <div class="error-message" id="T4U-error">Please enter a valid T4U value</div>
+          </div>
+          
+          <div class="form-group">
+            <label class="required-field">FTI</label>
+            <div class="input-group">
+              <i class="fas fa-flask"></i>
+              <input type="number" id="FTI" required>
+            </div>
+            <div class="field-info">Free Thyroxine Index</div>
+            <div class="error-message" id="FTI-error">Please enter a valid FTI value</div>
+          </div>
+          
+          <!-- Other conditions -->
+          <div class="form-group">
+            <label>Goitre Present?</label>
+            <div class="binary-switch">
+              <input type="radio" id="goitre_f" name="goitre" value="f" checked>
+              <label for="goitre_f">No</label>
+              <input type="radio" id="goitre_t" name="goitre" value="t">
+              <label for="goitre_t">Yes</label>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Tumor Present?</label>
+            <div class="binary-switch">
+              <input type="radio" id="tumor_f" name="tumor" value="f" checked>
+              <label for="tumor_f">No</label>
+              <input type="radio" id="tumor_t" name="tumor" value="t">
+              <label for="tumor_t">Yes</label>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Psychiatric Symptoms?</label>
+            <div class="binary-switch">
+              <input type="radio" id="psych_f" name="psych" value="f" checked>
+              <label for="psych_f">No</label>
+              <input type="radio" id="psych_t" name="psych" value="t">
+              <label for="psych_t">Yes</label>
+            </div>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn">
+          <i class="fas fa-calculator"></i> Analyze Thyroid Status
+        </button>
+      </form>
+      
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Analyzing your data...</p>
+      </div>
+      
+      <div class="result-container" id="result-container">
+        <div class="result-heading">
+          <i class="fas fa-clipboard-check"></i>
+          <span>Analysis Results</span>
+        </div>
+        <div class="result-content">
+          <div class="result-info">
+            <div class="result-status" id="result-status">Processing...</div>
+            <div class="result-description" id="result-description"></div>
+          </div>
+          <div id="result-icon" class="result-icon">
+            <i class="fas fa-question"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Form validation
+    const form = document.getElementById('predictForm');
+    const requiredFields = ['age', 'TSH', 'T3', 'TT4', 'T4U', 'FTI'];
+    
+    // Helper function to get the value of radio buttons
+    function getRadioValue(name) {
+      return document.querySelector(`input[name="${name}"]:checked`).value;
+    }
+    
+    // Show loading indicator
+    function showLoading() {
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('result-container').style.display = 'none';
+    }
+    
+    // Hide loading indicator
+    function hideLoading() {
+      document.getElementById('loading').style.display = 'none';
+    }
+    
+    // Show result
+    function showResult(prediction) {
+      const resultContainer = document.getElementById('result-container');
+      const resultStatus = document.getElementById('result-status');
+      const resultDescription = document.getElementById('result-description');
+      const resultIcon = document.getElementById('result-icon');
+      
+      // Make sure the container is visible
+      resultContainer.style.display = 'block';
+      
+      // Add the show class with a slight delay to trigger animation
+      setTimeout(() => {
+        resultContainer.classList.add('show');
+      }, 10);
+      
+      console.log("Prediction result:", prediction);
+      
+      if (prediction && (prediction.toLowerCase().includes('positive') || prediction.toLowerCase().includes('hypothyroid'))) {
+        resultStatus.textContent = 'Positive for Hypothyroidism';
+        resultDescription.textContent = 'The analysis indicates potential hypothyroid condition. Please consult with a healthcare provider.';
+        resultIcon.className = 'result-icon positive';
+        resultIcon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+      } else {
+        resultStatus.textContent = 'Negative for Hypothyroidism';
+        resultDescription.textContent = 'The analysis indicates normal thyroid function.';
+        resultIcon.className = 'result-icon negative';
+        resultIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
+      }
+    }
+    
+    // Show error in result area
+    function showError(message) {
+      const resultContainer = document.getElementById('result-container');
+      const resultStatus = document.getElementById('result-status');
+      const resultDescription = document.getElementById('result-description');
+      const resultIcon = document.getElementById('result-icon');
+      
+      // Make sure the container is visible
+      resultContainer.style.display = 'block';
+      
+      // Add the show class with a slight delay to trigger animation
+      setTimeout(() => {
+        resultContainer.classList.add('show');
+      }, 10);
+      
+      resultStatus.textContent = 'Error';
+      resultDescription.textContent = message;
+      resultIcon.className = 'result-icon';
+      resultIcon.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
+    }
+    
+    // Validate a field
+    function validateField(fieldId) {
+      const field = document.getElementById(fieldId);
+      const errorElement = document.getElementById(`${fieldId}-error`);
+      
+      if (!field.value || field.value.trim() === '' || isNaN(field.value)) {
+        field.classList.add('error-border');
+        errorElement.style.display = 'block';
+        return false;
+      } else {
+        field.classList.remove('error-border');
+        errorElement.style.display = 'none';
+        return true;
+      }
+    }
+    
+    // Form submission
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      // Validate all required fields
+      let isValid = true;
+      for (const field of requiredFields) {
+        if (!validateField(field)) {
+          isValid = false;
+        }
+      }
+      
+      if (!isValid) {
+        return;
+      }
+      
+      showLoading();
+      
+      const inputData = {
+        age: parseFloat(document.getElementById('age').value),
+        sex: document.getElementById('sex').value,
+        on_thyroxine: getRadioValue('on_thyroxine'),
+        query_on_thyroxine: getRadioValue('query_on_thyroxine'),
+        on_antithyroid_medication: getRadioValue('on_antithyroid_medication'),
+        sick: getRadioValue('sick'),
+        pregnant: getRadioValue('pregnant'),
+        TSH: parseFloat(document.getElementById('TSH').value),
+        T3: parseFloat(document.getElementById('T3').value),
+        TT4: parseFloat(document.getElementById('TT4').value),
+        T4U: parseFloat(document.getElementById('T4U').value),
+        FTI: parseFloat(document.getElementById('FTI').value),
+        goitre: getRadioValue('goitre'),
+        tumor: getRadioValue('tumor'),
+        psych: getRadioValue('psych')
+      };
+      
+      try {
+        // For demo purposes, add a small delay to show loading
+        setTimeout(async () => {
+          try {
+            const response = await fetch('/predict', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(inputData)
+            });
+            
+            hideLoading();
+            
+            if (response.ok) {
+              const result = await response.json();
+              showResult(result.prediction);
+            } else {
+              const error = await response.json();
+              showError(error.error || 'Server error occurred');
+            }
+          } catch (error) {
+            hideLoading();
+            showError(`Connection error: ${error.message}`);
+          }
+        }, 1000);
+      } catch (error) {
+        hideLoading();
+        showError(`Error: ${error.message}`);
+      }
+    });
+    
+    // Add validation listeners to all required fields
+    requiredFields.forEach(field => {
+      const element = document.getElementById(field);
+      element.addEventListener('blur', () => validateField(field));
+    });
+    
+    // Add normal range tooltips for educational purposes
+    const normalRanges = {
+      TSH: "0.4 - 4.0 mIU/L",
+      T3: "1.2 - 3.0 nmol/L",
+      TT4: "60 - 120 nmol/L",
+      T4U: "0.8 - 1.2",
+      FTI: "6.0 - 12.0"
+    };
+    
+    Object.keys(normalRanges).forEach(test => {
+      const element = document.getElementById(test);
+      const parent = element.parentElement.parentElement;
+      const label = parent.querySelector('label');
+      
+      const tooltip = document.createElement('span');
+      tooltip.className = 'tooltip';
+      tooltip.innerHTML = `<i class="fas fa-info-circle"></i><span class="tooltip-text">Normal range: ${normalRanges[test]}</span>`;
+      
+      label.appendChild(tooltip);
+    });
+  </script>
+</body>
+</html>
